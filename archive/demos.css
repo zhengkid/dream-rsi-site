@@ -1,0 +1,75 @@
+/* ============================================================
+   DEMOS
+   ============================================================ */
+.tablist {
+  display: flex; flex-wrap: wrap; gap: 7px;
+  margin: 30px 0 16px;
+}
+.tablist button {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: .04em;
+  padding: 8px 13px; border-radius: 9px;
+  border: 1px solid var(--line-2); background: transparent; color: var(--ink-2);
+  cursor: pointer; transition: all .18s var(--ease);
+}
+.tablist button:hover { color: var(--ink); border-color: var(--env); }
+.tablist button:active { transform: scale(.97); }
+.tl-tag { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+/* --env on --bg2 only reaches 4.2:1, so the selected state drops one step
+   deeper in light; on dark the deep blue is the one that goes dim. */
+.tablist button[aria-selected="true"],
+.dr-chips button[aria-current="true"] {
+  background: var(--bg2); color: var(--env-deep); border-color: var(--env-line);
+}
+[data-theme="dark"] .tablist button[aria-selected="true"],
+[data-theme="dark"] .dr-chips button[aria-current="true"] { color: var(--env); }
+.tablist button[aria-selected="true"] .tl-tag { color: var(--env); }
+
+.tabpanel[hidden] { display: none; }
+.tabpanel { animation: fade .26s ease both; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+.demo { display: grid; gap: 18px; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); align-items: stretch; }
+@media (max-width: 900px) { .demo { grid-template-columns: 1fr; } }
+
+.screen {
+  position: relative; width: 100%; aspect-ratio: 16 / 9;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 15px;
+  overflow: hidden; box-shadow: var(--shadow);
+}
+video.screen { object-fit: cover; }
+
+.screen-chrome {
+  position: absolute; inset: 0 0 auto 0; height: 38px; z-index: 2;
+  display: flex; align-items: center; gap: 6px; padding-inline: 14px;
+  background: var(--bg2); border-bottom: 1px solid var(--line);
+}
+.screen-chrome i { width: 8px; height: 8px; border-radius: 50%; background: var(--line-2); }
+.screen-chrome span { margin-left: 8px; font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); }
+.screen-body {
+  position: absolute; inset: 38px 0 0 0;
+  display: grid; place-content: center; justify-items: center; gap: 12px;
+  background: var(--bg1);
+}
+.screen-body p { font-family: var(--mono); font-size: 11.5px; letter-spacing: .06em; color: var(--ink-3); }
+.play { display: grid; place-content: center; width: 54px; height: 54px; border-radius: 50%; border: 1px solid var(--line-2); }
+.play svg { width: 22px; height: 22px; fill: var(--ink-3); margin-left: 3px; }
+
+.demo-meta {
+  display: flex; flex-direction: column;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 15px;
+  padding: 20px; box-shadow: var(--shadow);
+}
+.demo-meta h3 { margin: 0 0 12px; font-size: 17px; }
+.demo-meta p { font-family: var(--read); font-size: 14px; line-height: 1.65; color: var(--ink-2); }
+
+.stats { margin: auto 0 0; padding-top: 18px; display: grid; }
+.stats > div {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+  padding: 8px 0; border-top: 1px solid var(--line);
+}
+.stats dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.stats dd { font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; color: var(--ink); }
+.stats dd.good { color: var(--env); font-weight: 500; }
+.stats dd small { color: var(--ink-3); font-size: .85em; }
+

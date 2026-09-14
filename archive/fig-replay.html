@@ -1,0 +1,66 @@
+    <!-- ── interactive: history as a replay simulator ── -->
+    <figure class="rv" id="fig-replay">
+      <div class="rsim panel" data-rsim data-playing="true">
+        <div class="rsim-stage">
+          <div class="rsim-board">
+            <svg class="rsim-svg" data-rsim-svg role="img"
+                 aria-label="An interactive simulation. First, the deployed parallel-refine policy runs online and grows a discovery tree: three branches hang off one root, because only the root and the current leaves may be continued. Branch A has six attempts scoring .31 up to .47, branch B has five scoring .18 up to .86, and branch C has three scoring .24 up to .30. That run costs fourteen discovery-agent calls. The tree is then frozen and four alternative exploration policies are replayed over it, each visiting the same stored nodes in its own order for zero further agent calls: parallel refine needs thirteen continues to reach the best score of .86, greedy needs eleven, explore-then-exploit needs fourteen, and adaptive width needs ten."></svg>
+          </div>
+
+          <aside class="rsim-rail">
+            <div class="rsim-act">
+              <span class="rsim-mode" data-r-mode>online &middot; paid</span>
+              <strong data-r-name>Discovery run</strong>
+            </div>
+            <p class="rsim-note" data-r-note></p>
+
+            <dl class="dr-stats rsim-stats">
+              <div><dt>stored nodes</dt><dd data-r-nodes>0</dd></div>
+              <div><dt>agent calls</dt><dd class="real" data-r-calls>0</dd></div>
+              <div><dt>continues</dt><dd data-r-cont>0</dd></div>
+              <div><dt>best score</dt><dd data-r-best>&mdash;</dd></div>
+            </dl>
+          </aside>
+        </div>
+
+        <div class="rsim-cmp">
+          <span class="rsim-cmp-t">continues needed to reach 0.86</span>
+          <div class="rc-rows" data-r-cmp></div>
+        </div>
+      </div>
+
+      <div class="dr-controls rsim-controls">
+        <button class="dr-play" data-r-play type="button" aria-label="Pause">
+          <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h3v12H8zm5 0h3v12h-3z"/></svg>
+          <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l10 6-10 6z"/></svg>
+        </button>
+        <div class="dr-chips">
+          <button type="button" data-r-chip aria-current="true">Record &middot; 14 calls</button>
+          <button type="button" data-r-chip aria-current="false">&pi;&#8304; parallel refine</button>
+          <button type="button" data-r-chip aria-current="false">&pi;&sup1; greedy</button>
+          <button type="button" data-r-chip aria-current="false">&pi;&sup2; explore &rarr; exploit</button>
+          <button type="button" data-r-chip aria-current="false">&pi;&sup3; adaptive</button>
+        </div>
+        <button class="dr-speed" data-r-speed type="button" aria-label="1&times;, playback speed">1&times;</button>
+      </div>
+
+      <figcaption>
+        <span class="fnum">Interactive</span>
+        <b>One run, four policies, one bill.</b> The first act is the only one that
+        costs anything: the deployed policy &pi;&#8304; refines three branches in lock step
+        and spends <b>14 discovery-agent calls</b>, and each node keeps the score it
+        earned. After that the tree is frozen and becomes the simulator. A candidate
+        policy never sees the tree &mdash; it sees the eligible set
+        $\mathcal{A}(\mathcal{T}) = \{r\} \cup \{\text{leaves}\}$ and the scores handed
+        back so far, and answers with one <span class="step">CONTINUE</span>. Every
+        answer is already on disk, so a full evaluation costs <b>zero</b> executions.
+        The four candidates walk the same fourteen nodes in four different orders and
+        get four different curves: greedy cannot let go of branch&nbsp;A, which looks
+        best for five attempts and then dies at .47; explore-then-exploit pays for
+        &pi;&#8304;&rsquo;s ordering mistake twice over; &pi;&sup3; drops a branch as soon as a wave
+        stops paying and reaches the same 0.86 in <b>10 continues instead of 13</b>.
+        That comparison is what gets shipped &mdash; and because &pi;&#8304; is itself
+        a candidate, it can only ever be beaten, never undercut.
+      </figcaption>
+    </figure>
+

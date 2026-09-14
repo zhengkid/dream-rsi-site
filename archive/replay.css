@@ -1,0 +1,136 @@
+/* ============================================================
+   REPLAY SIMULATOR (the interactive figure in §03)
+
+   All colour comes from custom properties, so the inline SVG follows the
+   theme with no repaint hook — the reason this one is SVG and the
+   dreaming loop is canvas.
+
+   Two states carry the whole argument:
+     .is-paid    blue  — a node that cost a real discovery-agent call
+     .is-dreamt  violet — a node a candidate policy walked for free
+   Everything not in the current walk stays as .is-rec: present, stored,
+   and available, but not this policy's business.
+   ============================================================ */
+.rsim { margin-top: 26px; }
+.rsim-stage {
+  display: grid; grid-template-columns: minmax(0, 1fr) clamp(208px, 27%, 286px);
+}
+.rsim-board { min-width: 0; padding: 16px 10px 12px 16px; }
+.rsim-svg { display: block; width: 100%; height: auto; }
+
+.rsim-rail {
+  min-width: 0; display: flex; flex-direction: column; gap: 14px;
+  padding: 16px 18px 18px;
+  border-left: 1px solid var(--line); background: var(--bg1);
+}
+.rsim-act { display: grid; gap: 3px; }
+.rsim-mode {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--env);
+}
+.rsim-mode[data-kind="replay"] { color: var(--mid); }
+.rsim-act strong {
+  font-family: var(--display); font-size: 17px; font-weight: 600;
+  letter-spacing: -.012em; color: var(--ink); line-height: 1.25;
+}
+.rn-tag { font-family: var(--mono); color: var(--mid); }
+.rsim-note {
+  font-family: var(--read); font-size: 12.5px; line-height: 1.55; color: var(--ink-3);
+}
+.rsim-stats { gap: 9px; }
+
+/* ---------- the tree ---------- */
+.rsim-svg .re {
+  fill: none; stroke: var(--line-2); stroke-width: 1.5;
+  opacity: 0; transition: opacity .25s var(--ease), stroke .25s var(--ease);
+}
+.rsim-svg .re.is-rec    { opacity: 1; }
+.rsim-svg .re.is-paid   { stroke: var(--env); }
+.rsim-svg .re.is-dreamt { stroke: var(--mid); }
+/* a stored-but-unwalked edge is present, just not this policy's path */
+.rsim-svg[data-mode="replay"] .re.is-rec { stroke-dasharray: 3 4; opacity: .55; }
+.rsim-svg[data-mode="replay"] .re.is-dreamt { stroke-dasharray: none; opacity: 1; }
+
+.rsim-svg .rn circle {
+  fill: var(--panel); stroke: var(--line-2); stroke-width: 1.5;
+  transition: fill .25s var(--ease), stroke .25s var(--ease);
+}
+.rsim-svg .rn { opacity: 0; transition: opacity .25s var(--ease); }
+.rsim-svg .rn.is-rec { opacity: 1; }
+.rsim-svg[data-mode="replay"] .rn.is-rec { opacity: .6; }
+.rsim-svg[data-mode="replay"] .rn.is-dreamt { opacity: 1; }
+
+.rsim-svg .rn-s {
+  font-family: var(--mono); font-size: 11px; font-variant-numeric: tabular-nums;
+  text-anchor: middle; fill: var(--ink-2);
+}
+.rsim-svg .rn-o {                       /* visit order — the whole point */
+  font-family: var(--mono); font-size: 10px; text-anchor: middle; fill: var(--mid);
+}
+.rsim-svg .rn-lab {
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em;
+  text-transform: uppercase; fill: var(--ink-3);
+}
+.rsim-svg .rn.is-paid circle   { stroke: var(--env); fill: var(--env-ghost); }
+.rsim-svg .rn.is-paid   .rn-s  { fill: var(--env-deep); }
+.rsim-svg .rn.is-paid   .rn-o  { fill: var(--env); }
+.rsim-svg .rn.is-dreamt circle { stroke: var(--mid); fill: var(--mid-ghost); }
+.rsim-svg .rn.is-dreamt .rn-s  { fill: var(--mid-deep); }
+/* only one node gets a heavy ring, and it is always the best one found so
+   far. The cursor is carried by the order badge, so is-live only warms the
+   fill — two heavy rings on one board and neither means anything. */
+.rsim-svg .rn.is-live circle   { stroke-width: 2; }
+.rsim-svg .rn.is-best circle   { stroke-width: 3.5; }
+.rsim-svg .rn.is-best .rn-s    { font-weight: 700; }
+.rsim-svg .rn-root circle { fill: var(--bg2); stroke: var(--line-2); }
+.rsim-svg .rn-root .rn-s  { fill: var(--ink-3); }
+[data-theme="dark"] .rsim-svg .rn.is-paid   .rn-s { fill: var(--env); }
+[data-theme="dark"] .rsim-svg .rn.is-dreamt .rn-s { fill: var(--mid); }
+
+/* ---------- the comparison strip ---------- */
+.rsim-cmp { border-top: 1px solid var(--line); padding: 14px 18px 16px; background: var(--bg1); }
+.rsim-cmp-t {
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.rc-rows { display: grid; gap: 6px; margin-top: 10px; }
+.rc-row {
+  display: grid; grid-template-columns: 22px minmax(0, 132px) minmax(0, 1fr) 26px;
+  align-items: center; gap: 10px;
+  opacity: .38; transition: opacity .3s var(--ease);
+}
+.rc-row.is-on { opacity: 1; }
+.rc-tag  { font-family: var(--mono); font-size: 12px; color: var(--mid); }
+.rc-name { font-family: var(--mono); font-size: 11px; color: var(--ink-3);
+           white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rc-track { height: 7px; border-radius: 4px; background: var(--bg2); overflow: hidden; }
+.rc-track i { display: block; height: 100%; width: 0; border-radius: 4px;
+              background: var(--line-2); transition: width .45s var(--ease), background .3s; }
+.rc-row.is-on .rc-track i { background: var(--mid); }
+.rc-row.is-cur .rc-name   { color: var(--ink); }
+.rc-n { font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums;
+        color: var(--ink-3); text-align: right; }
+.rc-row.is-on .rc-n { color: var(--ink); }
+
+#fig-replay[data-playing="true"]  .i-play,
+#fig-replay[data-playing="false"] .i-pause { display: none; }
+.rsim-controls { margin-top: 14px; }
+
+/* the rail cannot hold four stats and a tree side by side on a phone */
+@media (max-width: 860px) {
+  .rsim-stage { grid-template-columns: minmax(0, 1fr); }
+  .rsim-board { padding: 16px 14px 4px; }
+  .rsim-rail { border-left: 0; border-top: 1px solid var(--line); }
+  .rsim-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rc-row { grid-template-columns: 22px minmax(0, 1fr) 26px; }
+  .rc-row .rc-track { display: none; }
+}
+/* Below this the whole 600-unit tree scales down far enough that the scores
+   inside the nodes stop being readable, which costs more than the scroll
+   does. Pin a floor and let the board scroll — same bargain as .table-scroll,
+   and the page itself still never overflows. */
+@media (max-width: 620px) {
+  .rsim-board { overflow-x: auto; padding: 14px 14px 10px; }
+  .rsim-svg { min-width: 520px; }
+}
+

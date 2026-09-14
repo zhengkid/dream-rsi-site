@@ -1,0 +1,3 @@
+# nothing here is built, so there is nothing to ignore except editor/OS noise
+.DS_Store
+*.swp

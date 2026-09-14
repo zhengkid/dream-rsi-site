@@ -1,0 +1,126 @@
+    <h3 class="dr-divider">Per-task recordings</h3>
+
+    <div class="tabs rv" data-tabs>
+      <div class="tablist" role="tablist" aria-label="Demos">
+        <button role="tab" id="tab-1" aria-controls="panel-1" aria-selected="true">
+          <span class="tl-name">ConvDiv</span><span class="tl-tag">2.09&times;</span>
+        </button>
+        <button role="tab" id="tab-2" aria-controls="panel-2" aria-selected="false">
+          <span class="tl-name">VGG16</span><span class="tl-tag">2.43&times;</span>
+        </button>
+        <button role="tab" id="tab-3" aria-controls="panel-3" aria-selected="false">
+          <span class="tl-name">Lasso path</span><span class="tl-tag">317 calls</span>
+        </button>
+        <button role="tab" id="tab-4" aria-controls="panel-4" aria-selected="false">
+          <span class="tl-name">Circle packing</span><span class="tl-tag">2.635983</span>
+        </button>
+      </div>
+
+      <!-- ── demo 1 ── -->
+      <div class="tabpanel" role="tabpanel" id="panel-1" aria-labelledby="tab-1">
+        <article class="demo">
+          <!-- TODO: swap the .screen div for:
+               <video class="screen" controls muted playsinline preload="metadata"
+                      poster="assets/demo-convdiv.jpg">
+                 <source src="assets/demo-convdiv.mp4" type="video/mp4">
+               </video> -->
+          <div class="screen screen-empty">
+            <div class="screen-chrome"><i></i><i></i><i></i><span>assets/demo-convdiv.mp4</span></div>
+            <div class="screen-body">
+              <span class="play" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M9 7l9 5-9 5z"/></svg>
+              </span>
+              <p>Recording coming soon</p>
+            </div>
+          </div>
+          <div class="demo-meta">
+            <h3>ConvDiv kernel</h3>
+            <p>Across nine recursive rounds the policy first cuts evaluated attempts from 110 to 50
+               to conserve compute, then widens again when progress plateaus &mdash; each widening
+               coinciding with a jump in round-best performance.</p>
+            <dl class="stats">
+              <div><dt>Score vs. fixed</dt><dd class="good">2.09&times;</dd></div>
+              <div><dt>Round-best</dt><dd>0.427 &rarr; 1.898</dd></div>
+              <div><dt>Budget</dt><dd>~1,000 gens</dd></div>
+            </dl>
+          </div>
+        </article>
+      </div>
+
+      <!-- ── demo 2 ── -->
+      <div class="tabpanel" role="tabpanel" id="panel-2" aria-labelledby="tab-2" hidden>
+        <article class="demo">
+          <div class="screen screen-empty">
+            <div class="screen-chrome"><i></i><i></i><i></i><span>assets/demo-vgg16.mp4</span></div>
+            <div class="screen-body">
+              <span class="play" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M9 7l9 5-9 5z"/></svg>
+              </span>
+              <p>Recording coming soon</p>
+            </div>
+          </div>
+          <div class="demo-meta">
+            <h3>VGG16 kernel</h3>
+            <p>Reaches the performance the fixed policy needs a full budget for, using 2.43&times;
+               fewer generations &mdash; the dreamed policy stops pouring compute into branches the
+               replay already showed to be flat.</p>
+            <dl class="stats">
+              <div><dt>Cost vs. fixed</dt><dd class="good">2.43&times; fewer</dd></div>
+              <div><dt>Performance</dt><dd>~0.53 (1/ms)</dd></div>
+              <div><dt>Agent</dt><dd>Gemini-3.1 Pro</dd></div>
+            </dl>
+          </div>
+        </article>
+      </div>
+
+      <!-- ── demo 3 ── -->
+      <div class="tabpanel" role="tabpanel" id="panel-3" aria-labelledby="tab-3" hidden>
+        <article class="demo">
+          <div class="screen screen-empty">
+            <div class="screen-chrome"><i></i><i></i><i></i><span>assets/demo-lasso.mp4</span></div>
+            <div class="screen-body">
+              <span class="play" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M9 7l9 5-9 5z"/></svg>
+              </span>
+              <p>Recording coming soon</p>
+            </div>
+          </div>
+          <div class="demo-meta">
+            <h3>Lasso regularization path</h3>
+            <p>The discovered solver combines strong-rule screening with Cauchy&ndash;Schwarz KKT
+               pruning, recomputing exact gradients only when the bound cannot certify a feature,
+               and falling back to a full refresh when pruning stops paying off.</p>
+            <dl class="stats">
+              <div><dt>Avg. runtime</dt><dd class="good">2931.0 ms</dd></div>
+              <div><dt>Agent calls</dt><dd>317 <small>vs. 550</small></dd></div>
+              <div><dt>vs. SimpleTES</dt><dd>51,200 gens</dd></div>
+            </dl>
+          </div>
+        </article>
+      </div>
+
+      <!-- ── demo 4 ── -->
+      <div class="tabpanel" role="tabpanel" id="panel-4" aria-labelledby="tab-4" hidden>
+        <article class="demo">
+          <div class="screen screen-empty">
+            <div class="screen-chrome"><i></i><i></i><i></i><span>assets/demo-packing.mp4</span></div>
+            <div class="screen-body">
+              <span class="play" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M9 7l9 5-9 5z"/></svg>
+              </span>
+              <p>Recording coming soon</p>
+            </div>
+          </div>
+          <div class="demo-meta">
+            <h3>Circle packing</h3>
+            <p>Matches the strongest reported result among all compared discovery systems while
+               staying under 1,000 generations.</p>
+            <dl class="stats">
+              <div><dt>Sum of radii</dt><dd class="good">2.635983</dd></div>
+              <div><dt>Generations</dt><dd>&lt; 1,000</dd></div>
+              <div><dt>Rounds</dt><dd>10</dd></div>
+            </dl>
+          </div>
+        </article>
+      </div>
+    </div>

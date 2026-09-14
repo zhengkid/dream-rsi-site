@@ -1,0 +1,658 @@
+/* ============================================================
+   Dream-RSI project page
+
+   Three voices, and nothing may speak out of turn:
+     interface  Google Sans Flex  — nav, headings, buttons, chrome
+     prose      Literata          — leads, abstract, captions only
+     machine    Google Sans Code  — eyebrows, labels, numbers, code
+
+   Light is the default; dark is a toggle on <html data-theme>, not a
+   media query, so the choice is the reader's and it persists.
+   ============================================================ */
+
+:root, [data-theme="light"] {
+  --bg0:#FFFFFF; --bg1:#FAFAFB; --bg2:#F6F7F9;
+  --panel:#FFFFFF;
+  --line:#E9EAEE; --line-2:#D7DAE0;
+  --ink:#24292F; --ink-2:#4B5158; --ink-3:#6A7079;  /* 6A7079 clears 4.5:1 on the tinted panels too; 6F767F was 4.40 */
+  --env:#3273DC; --env-deep:#2456B0;      /* accent: paid / online */
+  --mid:#7A52C7; --mid-deep:#5E3AA8;      /* second: imagined / free */
+  --warm:#B5701F;
+  --onenv:#FFFFFF;
+  --hud-bg:rgba(255,255,255,.88);
+  --shadow:0 1px 3px rgba(15,20,30,.05);
+  --canvas-ink:34,41,47;
+  --canvas-paper:255,255,255;
+}
+
+[data-theme="dark"] {
+  --bg0:#0D1117; --bg1:#11161D; --bg2:#161B22;
+  --panel:#141A21;
+  --line:#262C36; --line-2:#39414D;
+  --ink:#E6EDF3; --ink-2:#A8B3BF; --ink-3:#7D8794;
+  --env:#79A8F5; --env-deep:#4E7FD0;
+  --mid:#9E86E8; --mid-deep:#7C63C9;
+  --warm:#EFA75B;
+  --onenv:#0B1020;
+  --hud-bg:rgba(13,17,23,.86);
+  --shadow:0 1px 3px rgba(0,0,0,.4);
+  --canvas-ink:230,237,243;
+  --canvas-paper:13,17,23;
+}
+
+:root {
+  --env-ghost: color-mix(in srgb, var(--env) 9%, transparent);
+  --env-line:  color-mix(in srgb, var(--env) 55%, transparent);
+  --mid-ghost: color-mix(in srgb, var(--mid) 10%, transparent);
+
+  --display:'Google Sans Flex','Google Sans','Noto Sans',system-ui,-apple-system,sans-serif;
+  --sans:var(--display);
+  --read:'Literata','Noto Serif',Georgia,'Times New Roman',serif;
+  --mono:'Google Sans Code','JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  --measure:800px;
+  --ease:cubic-bezier(.2,.7,.3,1);
+  --t-base:.24s;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth; scroll-padding-top: 84px;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation: none !important; transition: none !important; }
+}
+
+body {
+  background: var(--bg0); color: var(--ink);
+  font-family: var(--sans); font-size: 16.5px; line-height: 1.7;
+  font-optical-sizing: auto; font-synthesis-weight: none;
+  overflow-x: hidden;
+  transition: background-color .35s, color .35s;
+}
+
+img, svg, video, canvas { max-width: 100%; display: block; }
+img { height: auto; }
+
+a { color: var(--env); text-decoration: none; }
+a:hover { text-decoration: underline; }
+::selection { background: color-mix(in srgb, var(--env) 18%, transparent); }
+
+code {
+  font-family: var(--mono); font-size: .86em; letter-spacing: -.005em;
+  background: var(--bg2); border: 1px solid var(--line); border-radius: 5px;
+  padding: 1.5px 6px; color: var(--ink);
+}
+
+a:focus-visible, button:focus-visible {
+  outline: 2px solid var(--env); outline-offset: 2px; border-radius: 6px;
+}
+
+.skip-link {
+  position: absolute; left: -9999px; top: 0; z-index: 200;
+  background: var(--ink); color: var(--bg0); padding: .7rem 1.1rem; border-radius: 0 0 8px 0;
+}
+.skip-link:focus { left: 0; }
+
+/* ============================================================
+   HUD NAV
+   ============================================================ */
+.hud {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 90;
+  border-bottom: 1px solid transparent;
+  transition: background .3s, border-color .3s, box-shadow .3s;
+}
+.hud.scrolled { background: var(--bg0); box-shadow: 0 1px 0 var(--line); }
+.hud-in {
+  max-width: 1240px; margin: 0 auto; padding: 14px 28px;
+  display: flex; align-items: center; gap: 26px;
+}
+.wordmark {
+  font-family: var(--display); font-weight: 700; font-size: 17px; letter-spacing: .01em;
+  color: var(--ink); display: flex; align-items: center; gap: 9px; text-decoration: none;
+}
+.wordmark:hover { text-decoration: none; }
+.wordmark .mark { width: 23px; height: 23px; flex: none; color: var(--env); }
+
+.hud nav { display: flex; gap: 22px; margin-left: auto; align-items: center; }
+.hud nav a {
+  position: relative;
+  font-family: var(--mono); font-size: 12.5px; letter-spacing: .03em; color: var(--ink-2);
+}
+.hud nav a::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 1.5px;
+  background: var(--env); transform: scaleX(0); transform-origin: left;
+  transition: transform var(--t-base) var(--ease);
+}
+.hud nav a:hover { color: var(--env); text-decoration: none; }
+.hud nav a:hover::after, .hud nav a.is-active::after { transform: scaleX(1); }
+.hud nav a.is-active { color: var(--ink); }
+.navbtn, .tbtn {
+  /* an <a> inherits body's 1.7 leading, a <button> gets the UA's `normal`, so
+     the two pills only line up if both are pinned to the same height */
+  display: inline-flex; align-items: center; height: 32px;
+}
+.navbtn {
+  border: 1px solid var(--line-2); border-radius: 7px;
+  padding: 0 13px; color: var(--ink) !important;
+}
+.navbtn::after { display: none; }
+.navbtn:hover { border-color: var(--env); }
+.tbtn {
+  cursor: pointer; background: none; border: 1px solid var(--line-2); color: var(--ink-2);
+  padding: 0 12px; border-radius: 7px;
+  font-family: var(--mono); font-size: 11.5px; transition: all .2s;
+}
+.tbtn:hover { border-color: var(--env); color: var(--env); }
+@media (max-width: 860px) { .hud nav a.hide-s { display: none; } }
+@media (max-width: 760px) {
+  .hud nav a[href^="#"] { display: none; }
+  .hud-in { padding: 11px 16px; gap: 12px; }
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero { position: relative; display: block; padding: 96px 26px 30px; overflow: hidden; }
+.hero-in { position: relative; max-width: 1180px; margin: 0 auto; width: 100%; text-align: center; }
+
+.eyebrow {
+  font-family: var(--mono); font-size: 12.5px; letter-spacing: .15em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.eyebrow b { color: var(--env); font-weight: 500; }
+
+.papertitle {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(24px, 3.9vw, 36px);
+  max-width: 1020px; margin-inline: auto; text-wrap: balance;
+  line-height: 1.14; letter-spacing: -.026em; margin-top: 8px;
+}
+.papertitle .grad { color: var(--env); }
+
+.authors {
+  margin: 16px auto 0; max-width: 1040px; text-wrap: balance;
+  font-size: 14.5px; line-height: 1.8; color: var(--ink-2);
+}
+.authors sup { color: var(--ink-3); font-size: .66em; }
+.affils {
+  margin: 7px auto 0; font-family: var(--mono); font-size: 11.5px;
+  color: var(--ink-3); letter-spacing: .02em; line-height: 1.7;
+}
+.affils sup { font-size: .75em; }
+.fnotes {
+  margin: 8px auto 0; font-family: var(--mono); font-size: 10.5px;
+  color: var(--ink-3); opacity: .92;
+}
+.fnotes sup { font-size: .8em; }
+
+.tagline {
+  font-family: var(--display); font-weight: 700;
+  /* measured: this line is 1045px at 27px and 972px at 25px. 25/1000 keeps it
+     on ONE line all the way down to ~780px, and lands it at roughly the same
+     width as the title above — wider than the title would invert the hierarchy. */
+  font-size: clamp(19px, 1.9vw, 25px); line-height: 1.3;
+  margin: 34px auto 0; max-width: 1000px; letter-spacing: -.02em; color: var(--ink);
+  text-wrap: balance;
+}
+.tagline .grad { color: var(--env); white-space: nowrap; }
+/* Each sentence is its own inline-block, so when the line is too narrow to hold
+   both the break lands at the full stop instead of mid-clause. They still sit on
+   one line whenever they fit, and each still wraps internally on a phone. */
+.tagline .s { display: inline-block; }
+.tagline .nb { white-space: nowrap; }
+/* text-wrap:balance is free to break inside the highlighted phrase, and a
+   half-blue / half-blue-next-line span reads as a mistake. Pin it. */
+
+.cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
+.btn-hero {
+  display: inline-flex; align-items: center; gap: 9px; line-height: 1;
+  font-family: var(--sans); font-size: 13.5px; font-weight: 500;
+  padding: 11px 22px; border-radius: 999px;
+  border: 1px solid var(--ink); color: var(--bg0); background: var(--ink);
+  text-decoration: none; transition: all .2s var(--ease);
+}
+.btn-hero:hover {
+  background: color-mix(in srgb, var(--ink) 82%, var(--bg0));
+  border-color: color-mix(in srgb, var(--ink) 82%, var(--bg0));
+  color: var(--bg0); text-decoration: none; transform: translateY(-1px);
+}
+.btn-hero:active { transform: translateY(1px) scale(.995); }
+.btn-hero.primary { background: var(--env-deep); border-color: var(--env-deep); color: #fff; font-weight: 600; }
+.btn-hero.primary:hover { background: var(--env); border-color: var(--env); color: #fff; }
+.bicon { width: 17px; height: 17px; flex: 0 0 auto; display: block;
+         fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* the teaser figure sits in a panel directly under the hero */
+/* 1128 = the .sec content box, so the teaser lands on the same rail as
+   every later figure instead of 26px outboard of it */
+.herofigs { max-width: 1128px; margin: 44px auto 0; }
+.herofigs figcaption { text-align: left; }   /* the hero centres; prose never does */
+
+
+/* ── institution marks ────────────────────────────────────────
+   The sprite lives at the bottom of index.html. UMD, UVA and the
+   DeepMind wordmark are fill="currentColor", so they ride the theme;
+   Google and the DeepMind swirl keep their brand colours in both.
+   An <img> could not do this — an external SVG is its own document
+   and would not inherit colour from the page.                     */
+.logo-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* No plate, no frame — the marks sit straight on the page. In light that
+   is already the white ground the brand guides ask for; in dark the
+   currentColor wordmarks ride var(--ink) and go light, while the emblems
+   keep their brand colour. */
+.orgs {
+  display: flex; align-items: center; justify-content: center;
+  width: fit-content; max-width: 100%;
+  margin: 22px auto 34px;
+  color: var(--ink);
+}
+.orgs a {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0 30px; height: 46px;
+  color: inherit; text-decoration: none;
+  transition: opacity .2s var(--ease);
+}
+.orgs a + a { box-shadow: -1px 0 0 var(--line); }   /* hairline, no layout cost */
+.orgs a:hover { opacity: .62; text-decoration: none; }
+.lg { display: block; width: auto; }
+/* sized by eye, not by box: each viewBox devotes a different share of
+   its height to actual letterform */
+.lg-google   { height: 29px; }
+.lg-deepmind { height: 32px; }
+.lg-umd      { height: 38px; }
+.lg-uva      { height: 44px; }
+
+/* measured: the single row is 946px, and the page gutter is 26px a side,
+   so it stops clearing at 998. Below that, fold to 2x2 — and a folded grid
+   can't carry vertical hairlines. */
+@media (max-width: 1000px) {
+  .orgs {
+    display: grid; grid-template-columns: repeat(2, auto);
+    justify-items: center; gap: 6px 26px;
+  }
+  .orgs a { padding: 0; }
+  .orgs a + a { box-shadow: none; }
+}
+/* Narrow enough that the widest mark no longer fits its own column. Give
+   every cell the same width and let each <svg> fit inside its box — a
+   fixed height plus width:100% is a fit-to-box, not a stretch, because
+   preserveAspectRatio still holds. */
+@media (max-width: 560px) {
+  .orgs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 16px; width: 100%; padding: 0 8px;
+  }
+  .orgs a { min-width: 0; }
+  .lg { width: 100%; }
+  .lg-google { height: 24px; } .lg-deepmind { height: 26px; }
+  .lg-umd    { height: 32px; } .lg-uva      { height: 36px; }
+}
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+.sec {
+  max-width: 1180px; margin: 0 auto; padding: 90px 26px 20px;
+  border-top: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
+}
+.sec:first-of-type { border-top: 0; }
+/* Two measures, one axis. Everything on the page is either reading width
+   (--measure) or full width (the .sec box), and BOTH are centred. The old
+   layout left-aligned a 760px column inside an 1180px section, so the right
+   third of every prose block was dead space while the figures below it ran
+   the full width — four different right edges, none of them resolved. */
+.sec > *, .sec-head { margin-inline: auto; }
+.sec-head { max-width: var(--measure); margin-bottom: 38px; }   /* collapses with whatever opens the section */
+.secno {
+  font-family: var(--mono); font-size: 12px; letter-spacing: .15em;
+  text-transform: uppercase; color: var(--env);
+  display: inline-flex; align-items: center; gap: 12px;
+}
+.secno::after {
+  content: ""; width: 56px; height: 1px;
+  background: linear-gradient(90deg, var(--env), transparent);
+}
+h2 {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(25px, 2.9vw, 35px); line-height: 1.12;
+  letter-spacing: -.022em; margin-top: 12px;
+}
+h3 { font-family: var(--display); font-size: 18px; font-weight: 600; margin: 38px 0 4px; color: var(--ink); }
+h4 { font-family: var(--display); font-size: 15px; font-weight: 600; }
+/* display type sets its own leading; 1.7 is for reading, not for headings */
+h3, h4, .res-h, .kcard h3 { line-height: 1.3; }
+
+/* prose voice: long-form reading only, never UI chrome */
+.lead, .abstext, .prose p {
+  font-family: var(--read); font-optical-sizing: auto;
+  color: var(--ink-2); max-width: var(--measure); margin-inline: auto;
+}
+.lead { margin-top: 16px; font-size: 17.5px; line-height: 1.72; }
+.lead, .prose p, .kcard p, figcaption, .figcap, .tbl-cap, .foot-note { text-wrap: pretty; }
+.prose p { font-size: 17px; line-height: 1.8; margin-top: 16px; }
+.abstext {
+  /* was 860px + justify: 118 characters a line, and the justification opened
+     word-spaces to 2.5x natural. One measure, one rag. */
+  font-size: 16px; line-height: 1.85; margin-top: 16px;
+}
+b, strong { color: var(--ink); font-weight: 600; }
+em { color: var(--ink); }
+
+/* reveal on scroll */
+.rv { opacity: 0; transform: translateY(26px); }
+.rv.in { opacity: 1; transform: none; transition: opacity .7s ease, transform .7s var(--ease); }
+.rv.d1.in { transition-delay: .08s; } .rv.d2.in { transition-delay: .16s; } .rv.d3.in { transition-delay: .24s; }
+@media (prefers-reduced-motion: reduce) { .rv { opacity: 1; transform: none; } }
+
+/* ============================================================
+   PANELS, FIGURES, CALLOUTS
+   ============================================================ */
+.panel {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 15px;
+  overflow: hidden; box-shadow: var(--shadow);
+}
+.panel-pad { padding: 20px; }
+
+figure { margin: 38px 0 0; }
+/* A caption is as wide as the thing it captions. No max-width here: it takes
+   the width of its <figure>, so the last line never stops short of the plate. */
+figcaption, .figcap {
+  font-family: var(--read); font-size: 13.5px; line-height: 1.65;
+  color: var(--ink-3); margin-top: 14px;
+}
+figcaption b, .figcap b { color: var(--ink-2); }
+.fnum {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--env); margin-right: 9px;
+}
+figcaption .step { color: var(--env); white-space: nowrap; }
+.figure-narrow { max-width: 660px; }   /* narrow plate, and the caption narrows with it */
+
+/* figures are exported on white — keep the plate white in both themes */
+.plate { width: 100%; background: #fff; border-radius: 12px; padding: 14px; }
+[data-theme="dark"] .plate { background: #f3f4f7; }
+
+.callout {
+  border-left: 3px solid var(--env);
+  background: color-mix(in srgb, var(--env) 5%, var(--bg0));
+  padding: 20px 24px; border-radius: 0 12px 12px 0;
+  margin-top: 44px; max-width: var(--measure); margin-inline: auto;
+}
+.callout h4 { margin: 0; }
+.callout p { font-family: var(--read); font-size: 14.5px; margin-top: 9px; color: var(--ink-2); }
+
+/* ============================================================
+   KEY POINTS + HEADLINE NUMBERS
+   ============================================================ */
+.kcards {
+  list-style: none; display: grid; gap: 14px; margin-top: 34px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+.kcard {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  padding: 20px; box-shadow: var(--shadow);
+}
+.kcard .kn {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .12em; color: var(--env);
+}
+.kcard h3 { font-size: 15.5px; margin: 12px 0 10px; }
+.kcard p { font-family: var(--read); font-size: 14px; line-height: 1.65; color: var(--ink-2); }
+
+.mgrid {
+  list-style: none; display: grid; gap: 14px; margin-top: 26px;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+.mitem {
+  background: var(--bg1); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px;
+}
+.mitem b {
+  display: block; font-family: var(--display); font-weight: 700;
+  font-size: clamp(22px, 2.2vw, 26px); line-height: 1.1; letter-spacing: -.022em;
+  color: var(--env); font-variant-numeric: tabular-nums;
+}
+.mitem span {
+  display: block; margin-top: 6px; text-wrap: balance;
+  font-family: var(--read); font-size: 13.5px; line-height: 1.6; color: var(--ink-3);
+}
+
+/* ============================================================
+   MATH
+   ============================================================ */
+mjx-container[display="true"] {
+  /* centred inside the measure, not inside the 1180px section, or the equation
+     floats away from the paragraph that sets it up */
+  max-width: var(--measure);
+  margin: 26px auto !important; overflow-x: auto; overflow-y: hidden; padding-block: 4px;
+}
+
+/* ============================================================
+   DEMOS
+   ============================================================ */
+/* The per-task recording tabs were removed on 2026-09-14 (archive/per-task-tabs.html
+   + archive/demos.css). All that survives is the frame the live dreaming loop sits
+   in — .dr-* owns everything inside it. */
+.screen {
+  position: relative; width: 100%; aspect-ratio: 16 / 9;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 15px;
+  overflow: hidden; box-shadow: var(--shadow);
+}
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+.res-h { font-family: var(--display); font-size: 18px; font-weight: 600; margin: 50px 0 18px; }
+.res-h + figure { margin-top: 0; }
+.res-h:first-of-type { margin-top: 34px; }
+
+.table-scroll {
+  overflow-x: auto;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  padding: 6px 18px 16px; box-shadow: var(--shadow);
+}
+table { border-collapse: collapse; width: 100%; font-family: var(--sans); font-size: 13.5px; }
+th, td { padding: 7px 11px; text-align: left; white-space: nowrap; }
+thead th {
+  position: sticky; top: 0; background: var(--panel);
+  font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3);
+  border-bottom: 1px solid var(--line-2); padding-block: 14px 8px;
+}
+tbody th { font-weight: 500; color: var(--ink-2); }
+tbody td { color: var(--ink-2); }
+tbody tr:not(.grp) + tr:not(.grp) th,
+tbody tr:not(.grp) + tr:not(.grp) td { border-top: 1px solid var(--line); }
+.grp th {
+  font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3);
+  padding-top: 16px; padding-bottom: 2px;
+}
+.num { text-align: right; font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+thead th.num { font-size: 10.5px; }   /* .num (0,1,0) would otherwise beat `thead th` (0,0,2) */
+.num.b { color: var(--ink); font-weight: 500; }
+.row-ours th, .row-ours td { background: var(--env-ghost); color: var(--ink); }
+.row-ours th[scope="row"] { font-weight: 600; }
+.row-ours th:first-child { border-radius: 8px 0 0 8px; }
+.row-ours td:last-child { border-radius: 0 8px 8px 0; }
+/* the caption sits outside .table-scroll, or it scrolls sideways with the table */
+.tbl-cap, .foot-note {
+  font-family: var(--read); font-size: 13.5px; line-height: 1.6; color: var(--ink-3);
+  margin-top: 14px;
+}
+
+/* ============================================================
+   CITE + FOOTER
+   ============================================================ */
+.bib {
+  position: relative; margin: 26px auto 0; max-width: var(--measure);
+  font-family: var(--mono); font-size: 12.5px; line-height: 1.65; letter-spacing: -.005em;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  padding: 22px; color: var(--ink-2); overflow-x: auto;
+}
+.bib pre, .bib code { font: inherit; color: inherit; background: none; border: 0; padding: 0; white-space: pre; }
+.copy {
+  position: absolute; top: 12px; right: 12px;
+  font-family: var(--mono); font-size: 11.5px;
+  padding: 6px 11px; border-radius: 8px;
+  border: 1px solid var(--line-2); background: var(--bg0); color: var(--ink-2); cursor: pointer;
+  transition: all .18s var(--ease);
+}
+.copy:hover { border-color: var(--env); color: var(--env); }
+.copy[data-done] { border-color: var(--env); color: var(--env); }
+
+.footer { border-top: 1px solid var(--line); margin-top: 80px; padding: 30px 26px 48px; }
+.footer-inner {
+  max-width: 1180px; margin: 0 auto;
+  display: flex; flex-wrap: wrap; gap: 8px 32px; justify-content: space-between;
+  font-family: var(--mono); font-size: 11.5px; color: var(--ink-3);
+}
+.footer-links span { opacity: .4; margin-inline: 6px; }
+
+@media print {
+  .hud, .copy, .skip-link { display: none; }
+  body { background: #fff; color: #000; }
+  .tabpanel[hidden] { display: block !important; }
+  .rv { opacity: 1; transform: none; }
+}
+
+/* ============================================================
+   THE DREAMING LOOP — live canvas demo (dream.js)
+   Two hues carry it: --env = paid for online, --mid = imagined for
+   free. dream.js reads both off this stylesheet, so a theme swap
+   repaints the canvas too.
+   ============================================================ */
+
+.dreamer { margin-top: 26px; }
+
+.dr-screen { aspect-ratio: 16 / 8.3; }
+
+.dr-stage {
+  position: absolute; inset: 0;
+  display: grid; grid-template-columns: minmax(0, 1fr) clamp(210px, 28%, 300px);
+}
+.dr-canvas-wrap { position: relative; min-width: 0; }
+.dr-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+.dr-rail {
+  position: relative; min-width: 0;
+  display: flex; flex-direction: column; gap: 16px;
+  padding: 16px 18px 18px;
+  border-left: 1px solid var(--line); background: var(--bg1);
+}
+
+.dr-act { display: grid; gap: 3px; }
+.dr-round {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.dr-act strong {
+  font-family: var(--display); font-size: 17px; font-weight: 600;
+  letter-spacing: -.012em; color: var(--ink); line-height: 1.2;
+}
+
+/* the three numbers double as the legend: blue is what was paid for,
+   violet is what was imagined */
+.dr-stats { display: grid; gap: 10px; }
+.dr-stats > div { min-width: 0; }
+.dr-stats dt {
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dr-stats dd {
+  margin-top: 2px;
+  font-family: var(--mono); font-size: 15px; font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.dr-stats dd.real  { color: var(--env); }
+.dr-stats dd.dream { color: var(--mid); }
+.dr-stats dd b { color: var(--mid); font-weight: 500; }
+
+.dr-hist-t {
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.dr-rounds { display: flex; flex-direction: column; gap: 7px; margin-top: auto; }
+.dr-rbars {
+  display: flex; align-items: flex-end; gap: 4px; height: 100px;
+  border-bottom: 1px solid var(--line-2);
+}
+.dr-rbars i {                       /* full bar: what the round was worth */
+  position: relative; flex: 1 1 0; min-width: 0; max-width: 22px; height: 3%;
+  border-radius: 3px 3px 0 0; background: var(--mid);
+  transition: height .3s var(--ease);
+}
+.dr-rbars i b {                     /* the part already reachable online */
+  position: absolute; left: 0; right: 0; bottom: 0;
+  border-radius: 0 0 1px 1px; background: var(--env);
+}
+.dr-rbars i[data-state="live"] { box-shadow: 0 0 0 1px var(--mid); }
+.dr-rbars i[data-state="todo"] {
+  background: none; height: 100% !important; border-radius: 0;
+  border-left: 1px dotted var(--line-2);
+}
+
+/* ---------- controls ---------- */
+.dr-controls { display: flex; align-items: center; gap: 9px; margin-top: 14px; flex-wrap: wrap; }
+.dr-play {
+  flex: none; width: 34px; height: 34px; display: grid; place-content: center;
+  border-radius: 9px; border: 1px solid var(--line-2);
+  background: transparent; color: var(--ink); cursor: pointer;
+  transition: all .18s var(--ease);
+}
+.dr-play:hover { border-color: var(--env); color: var(--env); }
+.dr-play svg { width: 16px; height: 16px; fill: currentColor; }
+.dreamer[data-playing="true"]  .i-play,
+.dreamer[data-playing="false"] .i-pause { display: none; }
+
+.dr-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.dr-chips button {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .04em; cursor: pointer;
+  padding: 7px 12px; border-radius: 9px;
+  border: 1px solid var(--line-2); background: transparent; color: var(--ink-2);
+  transition: all .18s var(--ease);
+}
+.dr-chips button:hover { color: var(--ink); border-color: var(--env); }
+.dr-chips button:active { transform: scale(.97); }
+
+.dr-speed {
+  margin-left: auto; font-family: var(--mono); font-size: 11px; cursor: pointer;
+  padding: 7px 11px; border-radius: 9px;
+  border: 1px solid var(--line-2); background: transparent; color: var(--ink-2);
+  transition: all .18s var(--ease);
+}
+.dr-speed:hover { color: var(--env); border-color: var(--env); }
+
+.dr-caption {
+  font-family: var(--read); font-size: 13.5px; line-height: 1.65;
+  color: var(--ink-3); margin-top: 16px;
+}
+.dr-caption b { color: var(--ink-2); }
+
+/* ---------- narrow ---------- */
+@media (max-width: 900px) {
+  .dr-screen { aspect-ratio: auto; }
+  .dr-stage { position: static; grid-template-columns: 1fr; }
+  .dr-canvas-wrap { aspect-ratio: 5 / 4; }
+  .dr-rail { border-left: 0; border-top: 1px solid var(--line); }
+  .dr-rounds { margin-top: 4px; }
+  .dr-rbars { height: 62px; }
+  .dr-chips { order: 3; flex: 1 0 100%; }
+  .dr-chips button { flex: 1 1 0; justify-content: center; padding: 7px 8px; font-size: 10.5px; }
+}
+@media (max-width: 760px) {
+  .sec { padding-left: 18px; padding-right: 18px; }
+  .hero { padding: 78px 18px 30px; }
+  .orgs { margin: 16px auto 26px; }
+  .btn-hero { font-size: 12.5px; padding: 9px 16px; }
+  .authors { font-size: 13.5px; }
+}
+@media (max-width: 430px) {
+  /* four chips share one row; "1 · Explore" is the widest and must not wrap */
+  .dr-chips button { font-size: 9.5px; padding: 7px 4px; white-space: nowrap; }
+}
