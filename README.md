@@ -133,9 +133,27 @@ dream-rsi-site/
   跟 §02 的论证是同一句话；§03 只留那张交互图（讲 loop 怎么转）。两张放一起会互相抵消。
   插入点在第二段 abstext 之后、「Dream-RSI is what falls out of that」之前——
   先讲清洞察，看图，再落到系统。
-- §01 的三张 kcard **不要**再出现 "History as a simulator"——那是 §02 一整节的标题，
-  重复了就等于把洞察提前剧透一遍还讲得更浅。现在三张卡是三个**别的**性质：
-  off-policy / agent 不动 / 不会退化。
+- **三张 kcard 在 hero 里**（tagline 之后、Figure 1 之前，class `hero-keys`），不在 §01。
+  它们是 tagline 那一句的三拍展开，所以必须在读者看系统全图**之前**读到；
+  原来排在 §01 末尾（Figure 1 之后、问题段和 The idea 框之后），等于在总结还没讲过的内容。
+  顺序是细节递增、不回头：一句 → 三拍 → 全图 → 再进问题。
+  hero 是居中的，所以 `.hero-keys` 自己声明 `text-align:left`（跟
+  `.herofigs figcaption` 同一条理由）；宽度 1128px 对齐下面的 Figure 1；
+  hero 里没有 `.sec-head` 可以塌边距，所以 margin-top 用 46px 不是 34px。（2026-09-15 移。）
+- 三张 kcard = 论文 contributions 那三条的三拍，**必须点到 dreaming 和 world model**：
+  `History is the world to dream in` / `Dreaming is how it self-improves` / `Every lap adds a world`
+  —— 分别对应 world model、dreaming、RSI 闭环。第三张原本写「不会退化」，
+  但那样三张卡全程没解释**为什么是 recursive 的**，标题里的 *Recursive* 和 *Evolving* 两个词都落空；
+  论文第二条贡献写的也是 Meta-Layer RSI **Loop**。单调性没丢，它在 §03 的 callout
+  和 §04 图注里，当「让这个环敢跑的安全条件」比当三分之一合适。
+- **是世界变多，不是一个世界变宽。** 每轮线上跑完录下一棵**新的** discovery tree，
+  那就是一个新的 world；`ℋ_t = (𝒯_1, …, 𝒯_t)` 是个不断变长的 simulator pool，
+  标题里 Worlds 是复数正是这个意思。写成 "widens the simulator" 是错的——
+  单棵树录完就冻住了，不会再长。§01 第三张卡和 §02 第二段都踩过这个坑（2026-09-15 修）。
+  （2026-09-15 改。此前是 off-policy / agent 不动 / 不会退化——每条都对，但把论文自己排第一第二的
+  贡献藏起来了，卡片是 §01 的收口，收口不该收在次要性质上。）
+  卡片是**论断**，§02 是**论证**，所以 01 那张和 §02 标题撞词是有意的，不算重复；
+  只要卡片别去展开论证就行——展开了才是剧透。
 - 三个大数字（2.43× / 2.09× / 162×）从 §01 移到了 §05 开头。§01 讲问题和 idea，
   不该用结果收尾。
 

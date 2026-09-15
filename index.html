@@ -144,6 +144,31 @@
         </a>
       </div>
 
+      <ul class="kcards hero-keys rv in d3">
+        <li class="kcard">
+          <span class="kn">01</span>
+          <h3>History is the world to dream in</h3>
+          <p>Not a learned world model and not an approximation. The discovery tree the agent already
+             built is an <em>exact</em> simulator of the search space it reached &mdash; a world that
+             came free, as a by-product of working.</p>
+        </li>
+        <li class="kcard">
+          <span class="kn">02</span>
+          <h3>Dreaming is how it self-improves</h3>
+          <p>A new exploration policy is tested by <em>imagining</em> it, not by living through it:
+             thousands of candidates dreamt against that world at zero executions, and only the
+             winner is ever deployed.</p>
+        </li>
+        <li class="kcard">
+          <span class="kn">03</span>
+          <h3>Every lap adds a world</h3>
+          <p>The winning policy goes back online and records a new discovery tree &mdash; one more
+             world, reaching places no earlier policy would have gone. The pool grows every lap, a
+             policy dreamt against more worlds beats one tuned to the luck of a single run, and that
+             policy brings back worlds no earlier one could. That is the recursion.</p>
+        </li>
+      </ul>
+
       <figure class="herofigs rv">
         <div class="panel panel-pad">
           <img class="plate" src="assets/fig1-overview.png" width="1380" height="620"
@@ -197,28 +222,6 @@
         rollout only on the winner.
       </p>
     </div>
-
-    <ul class="kcards">
-      <li class="kcard rv">
-        <span class="kn">01</span>
-        <h3>Off-policy, not online</h3>
-        <p>Policies are screened offline against the simulator pool, so a bad meta-proposal costs
-           replay time instead of a full online rollout.</p>
-      </li>
-      <li class="kcard rv d1">
-        <span class="kn">02</span>
-        <h3>The agent stays untouched</h3>
-        <p>A thin orchestration layer makes exploration explicit and programmable while leaving the
-           underlying coding agent exactly as it is.</p>
-      </li>
-      <li class="kcard rv d2">
-        <span class="kn">03</span>
-        <h3>It cannot regress</h3>
-        <p>The policy already deployed is itself one of the candidates being replayed, so the one
-           that ships is never worse than the one it replaces.</p>
-      </li>
-    </ul>
-
   </section>
 
   <!-- ═══════════════════════════ INSIGHT ════════════════════════ -->
@@ -253,9 +256,10 @@
         approximation. Nothing is predicted: the simulator is <em>exact</em> over the search space
         that was realized, because it <em>is</em> that search space. Its limit is just as sharp
         &mdash; a policy can only be dreamt where history actually went. Which is what forces this
-        to be a loop rather than a one-off. Every online deployment widens the simulator, a wider
-        simulator supports a better next policy, and that policy widens it again: the worlds the
-        agent dreams in <em>evolve</em> along with it.
+        to be a loop rather than a one-off. Every online deployment records another tree, so what
+        the agent owns is not one world but a growing <em>pool</em> of them; a policy dreamt across
+        more worlds beats one tuned to the luck of a single run, and it comes back with worlds no
+        earlier policy could have reached. The worlds <em>evolve</em> along with the agent.
       </p>
     </div>
 

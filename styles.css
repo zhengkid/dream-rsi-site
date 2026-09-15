@@ -394,6 +394,14 @@ figcaption .step { color: var(--env); white-space: nowrap; }
   list-style: none; display: grid; gap: 14px; margin-top: 34px;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
+/* The three cards live in the hero now, between the tagline and Figure 1: they are
+   the tagline's three beats, so they have to be read before the system diagram, not
+   after it. The hero centres its text and has no .sec-head to collapse against, so
+   the strip re-states both. Width matches .herofigs below it. */
+.hero-keys {
+  max-width: 1128px; margin: 46px auto 0; text-align: left;
+}
+
 .kcard {
   background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
   padding: 20px; box-shadow: var(--shadow);
