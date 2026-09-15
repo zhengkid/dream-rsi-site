@@ -65,6 +65,7 @@
   // The deployed run pays for the whole tree; a replayed policy only pays for
   // the path it would actually have walked. Same formula, so they compare.
   var LAMBDA = 0.006;
+  var EK = 24;        // replays per candidate version (see evalPolicy)
 
 
   function buildTree(seed) {
@@ -252,8 +253,8 @@
       for (i = 0; i < tree.nodes.length; i++)
         if (tree.nodes[i].score > top) top = tree.nodes[i].score;
       var dep = clamp(top - LAMBDA * tree.nodes.length, 0, 1), best = dep, top1 = null;
-      for (i = 0; i < 900; i++) {
-        var r = rollout(rnd, clamp(0.95 + gauss(rnd) * 0.7, 0.05, 2.6));
+      for (i = 0; i < 40; i++) {
+        var r = evalPolicy(rnd, clamp(0.95 + gauss(rnd) * 0.7, 0.05, 2.6));
         if (r.n > 1 && r.ret > best) { best = r.ret; top1 = r; }
       }
       if (top1) carry = { pts: chainPts(top1.chains), ret: best, best: true, solo: true };
@@ -425,6 +426,25 @@
     return variants[variants.length - 1];
   }
 
+  // A revision is a stochastic policy, not a single trajectory, so its score is
+  // the MEAN return over many replays -- which is what the paper does when it
+  // replays a version over the whole history. Scoring it by one draw made a
+  // narrow gamble that happened to open the right branch beat a policy that
+  // opens two and reliably finds it, so the version that won was almost always
+  // a single chain and the stage never showed the subtree the caption promises.
+  // The drawn subtree is the replay closest to the mean: representative, not the
+  // best-case one.
+  function evalPolicy(rnd, greed) {
+    var tot = 0, rs = [], i;
+    for (i = 0; i < EK; i++) { var r = rollout(rnd, greed); rs.push(r); tot += r.ret; }
+    var mean = tot / EK, rep = rs[0], gap = Math.abs(rs[0].ret - mean);
+    for (i = 1; i < EK; i++) {
+      var g = Math.abs(rs[i].ret - mean);
+      if (g < gap) { gap = g; rep = rs[i]; }
+    }
+    return { chains: rep.chains, n: rep.n, ret: mean };
+  }
+
   /* ---- one frame per policy revision the agent writes ---- */
 
   // pi^0 is the policy already deployed, so it is in the candidate set from the
@@ -433,7 +453,7 @@
   // agent has the earlier traces and scores to learn from.
   function addRevision(m) {
     revGreed = m === 0 ? 0.85 : clamp(revGreed + 0.3 + gauss(dreamRnd) * 0.28, 0.2, 2.6);
-    var r = rollout(dreamRnd, revGreed);
+    var r = evalPolicy(dreamRnd, revGreed);
     frames.push({ chains: r.chains, n: r.n, ret: r.ret, m: m, born: clock, best: false });
     var bi = 0;
     for (var i = 1; i < frames.length; i++) {
